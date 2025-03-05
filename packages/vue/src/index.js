@@ -1,11 +1,12 @@
 import fs from 'fs';
 import path from 'path';
 import { promisify } from 'util';
+import { normalizePath } from 'vite';
 
 const readdir = promisify(fs.readdir);
 const stat = promisify(fs.stat);
 
-import { normalizePath } from 'vite';
+
 
 
 
