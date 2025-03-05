@@ -1,0 +1,20 @@
+{
+  "name": "vite-plugin-file-router",
+  "version": "1.0.0",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "pnpm -r run build",
+    "dev:react": "pnpm --filter react-demo dev",
+    "dev:vue": "pnpm --filter vue-demo dev"
+  },
+  "peerDependencies": {
+    "vite": "^5.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.9",
+    "tsup": "^7.0.0",
+    "typescript": "^5.0.0",
+    "vite": "^5.0.0"
+  }
+}
