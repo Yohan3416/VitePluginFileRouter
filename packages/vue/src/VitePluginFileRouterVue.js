@@ -46,6 +46,7 @@ export const VitePluginFileRouterVue = async() => {
       }
 
       function generateChildren(paths) {
+        //需要删除的path对象
         const delpaths = [];
         for (let i = 0; i < paths.length; i++){
             const parentPath = normalizePath(path.resolve(paths[i].path,"../../index.vue"));
@@ -58,9 +59,19 @@ export const VitePluginFileRouterVue = async() => {
                 })
             }
         }
-        return paths.filter(item=>{
+        let _404Index = 0;
+        for (let i = 0; i < paths.length; i++){
+            if(paths[i].name === '404'){
+                _404Index = i;
+                break;
+            }
+        }
+        if(_404Index>=0){
+            paths.splice(_404Index,1);
+        }
+        return  paths.filter(item=>{
             return !delpaths.includes(item.path)
-        })
+        });
       }
 
       function generateRoutes(pathWithChildren) {
@@ -99,6 +110,20 @@ export const VitePluginFileRouterVue = async() => {
         pathWithChildren.forEach(path => {
             code += generateRoute(path, 1); // 初始缩进层级为1（2空格）
         });
+
+        //403
+        code += `\n  {`;
+        code += `\n    path: '/403',`;
+        code += `\n    name: '403',`;
+        code += `\n    component: () => import('${normalizePath(path.resolve(viewsDir, '403.vue'))}'),`;
+        code += `\n  },`;
+
+        //404路由
+        code += `\n  {`;
+        code += `\n    path: '/:pathMatch(.*)*',`;
+        code += `\n    name: '404',`;
+        code += `\n    component: () => import('${normalizePath(path.resolve(viewsDir, '404.vue'))}'),`;
+        code += `\n  },`;
         
         code += `\n];\n`;
         code += `const router = createRouter({\n  history: createWebHistory(),\n  routes,\n});\n`;
