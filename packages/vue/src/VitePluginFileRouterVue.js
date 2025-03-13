@@ -9,6 +9,8 @@ const stat = promisify(fs.stat);
 export const VitePluginFileRouterVue = async() => {
     //获取当前views目录
     const viewsDir = normalizePath(path.resolve(process.cwd(), 'src/views'));
+    const vModuleId = 'virtual:vue-router';
+    const resolvedVModuleId = '\0' + vModuleId;
     async function generatePaths(viewsDir) {
         let paths = [];
         
@@ -104,25 +106,45 @@ export const VitePluginFileRouterVue = async() => {
         // console.log(code);
         return code;
     }
-      
-    
-    const paths = await generatePaths(viewsDir);
-    const pathWithChildren = generateChildren(paths);
-    // generateRoutes(pathWithChildren);
 
-    // console.log(JSON.stringify(pathWithChildren))
+    //生成路由的主函数
+    async function getResultCode() {
+      const paths = await generatePaths(viewsDir);
+      const pathWithChildren = generateChildren(paths);
+      return generateRoutes(pathWithChildren);
+    }
 
 
     return {
         name: 'vite-plugin-file-router-react',
         resolveId(source, importer) {
-            if(source === 'virtual:vue-router') 
-                return 'virtual:vue-router'           
+            if(source === vModuleId) 
+                return resolvedVModuleId;           
         },
-        load(id) {
-            if(id === 'virtual:vue-router') {
-                return generateRoutes(pathWithChildren);
+        async load(id) {
+            if(id === resolvedVModuleId) {
+                return getResultCode();
             }
+        },
+        configureServer(server) {
+          const handleupdate = async (path) => {
+            if(normalizePath(path).startsWith(viewsDir)) {
+                // const resultCode = await getResultCode();
+                const module = server.moduleGraph.getModuleById(resolvedVModuleId);
+                if(module){
+                  console.log(`${viewsDir}下有文件更新了`)
+                  server.moduleGraph.invalidateModule(module);
+                  server.ws.send({
+                    type: 'update',
+                    path: vModuleId,
+                    acceptedPath: vModuleId,
+                    timestamp: Date.now(),
+                  })
+                }
+            }
+        }
+            server.watcher.on('add',handleupdate);
+            server.watcher.on('unlink', handleupdate);
         }
     }
 }
