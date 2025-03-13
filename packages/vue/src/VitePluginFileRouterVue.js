@@ -47,6 +47,12 @@ export const VitePluginFileRouterVue = async(options = {
         return paths;
       }
 
+      function remove403And404(paths){
+        return paths.filter(item=>{
+            return !['403.vue','404.vue'].includes(item.name)
+        })
+      }
+
       function generateChildren(paths) {
         //需要删除的path对象
         const delpaths = [];
@@ -61,18 +67,9 @@ export const VitePluginFileRouterVue = async(options = {
                 })
             }
         }
-        let _404Index = 0;
-        for (let i = 0; i < paths.length; i++){
-            if(paths[i].name === '404'){
-                _404Index = i;
-                break;
-            }
-        }
-        if(_404Index>=0){
-            paths.splice(_404Index,1);
-        }
+
         return  paths.filter(item=>{
-            return !delpaths.includes(item.path)
+            return !delpaths.includes(item.path)&&!['403','404'].includes(item.name)
         });
       }
 
