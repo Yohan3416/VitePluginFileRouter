@@ -6,9 +6,11 @@ import { normalizePath } from 'vite';
 const readdir = promisify(fs.readdir);
 const stat = promisify(fs.stat);
 
-export const VitePluginFileRouterVue = async() => {
+export const VitePluginFileRouterVue = async(options = {
+    viewsPath : 'src/views'
+}) => {
     //获取当前views目录
-    const viewsDir = normalizePath(path.resolve(process.cwd(), 'src/views'));
+    const viewsDir = normalizePath(path.resolve(process.cwd(), options.viewsPath));
     const vModuleId = 'virtual:vue-router';
     const resolvedVModuleId = '\0' + vModuleId;
     async function generatePaths(viewsDir) {
@@ -111,24 +113,30 @@ export const VitePluginFileRouterVue = async() => {
             code += generateRoute(path, 1); // 初始缩进层级为1（2空格）
         });
 
+        const Has403 = fs.existsSync(path.resolve(viewsDir, '403.vue'));
+        const Has404 = fs.existsSync(path.resolve(viewsDir, '404.vue'));
         //403
-        code += `\n  {`;
-        code += `\n    path: '/403',`;
-        code += `\n    name: '403',`;
-        code += `\n    component: () => import('${normalizePath(path.resolve(viewsDir, '403.vue'))}'),`;
-        code += `\n  },`;
+        if(Has403){
+          code += `\n  {`;
+          code += `\n    path: '/403',`;
+          code += `\n    name: '403',`;
+          code += `\n    component: () => import('${normalizePath(path.resolve(viewsDir, '403.vue'))}'),`;
+          code += `\n  },`;
+        }
 
         //404路由
-        code += `\n  {`;
-        code += `\n    path: '/:pathMatch(.*)*',`;
-        code += `\n    name: '404',`;
-        code += `\n    component: () => import('${normalizePath(path.resolve(viewsDir, '404.vue'))}'),`;
-        code += `\n  },`;
+        if(Has404){
+          code += `\n  {`;
+          code += `\n    path: '/:pathMatch(.*)*',`;
+          code += `\n    name: '404',`;
+          code += `\n    component: () => import('${normalizePath(path.resolve(viewsDir, '404.vue'))}'),`;
+          code += `\n  },`;
+        }
         
         code += `\n];\n`;
         code += `const router = createRouter({\n  history: createWebHistory(),\n  routes,\n});\n`;
         code += `export default router;`;
-        // console.log(code);
+        console.log(code);
         return code;
     }
 
