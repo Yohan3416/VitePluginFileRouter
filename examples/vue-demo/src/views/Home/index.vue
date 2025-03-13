@@ -1,5 +1,6 @@
 <template>
-    homesub
+    home????????
+    <router-view></router-view> 
 </template>
 <script setup>
 

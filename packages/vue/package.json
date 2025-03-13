@@ -1,19 +1,16 @@
 {
-  "name": "@yh/vite-plugin-vue-routing",
+  "name": "@vite-plugin/file-router-vue",
   "version": "0.0.1",
-  "main": "dist/index.cjs.js",
+  "main": "./dist/index.js",
   "module": "dist/index.esm.js",
   "types": "dist/index.d.ts",
   "scripts": {
-    "build": "tsup src/index.js --format cjs,esm --dts",
+    "build": "tsup index.js --format cjs,esm --dts --no-dts --external vite",
     "dev": "npm run build -- --watch"
   },
   "devDependencies": {
     "tsup": "^7.3.0",
     "typescript": "^5.0.0",
     "vite": "^5.0.0"
-  },
-  "peerDependencies": {
-    "vue": "3.0"
   }
 }

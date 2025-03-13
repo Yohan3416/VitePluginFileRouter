@@ -6,11 +6,7 @@ import { normalizePath } from 'vite';
 const readdir = promisify(fs.readdir);
 const stat = promisify(fs.stat);
 
-
-
-
-
-const vitePluginFileRouterVue = async() => {
+export const VitePluginFileRouterVue = async() => {
     //获取当前views目录
     const viewsDir = normalizePath(path.resolve(process.cwd(), 'src/views'));
     async function generatePaths(viewsDir) {
@@ -49,7 +45,7 @@ const vitePluginFileRouterVue = async() => {
 
       function generateChildren(paths) {
         const delpaths = [];
-        for (let i = 0; i < paths.length-1; i++){
+        for (let i = 0; i < paths.length; i++){
             const parentPath = normalizePath(path.resolve(paths[i].path,"../../index.vue"));
             if(paths[i].depth>=2){
                 paths.map(item=>{
@@ -105,7 +101,7 @@ const vitePluginFileRouterVue = async() => {
         code += `\n];\n`;
         code += `const router = createRouter({\n  history: createWebHistory(),\n  routes,\n});\n`;
         code += `export default router;`;
-        console.log(code);
+        // console.log(code);
         return code;
     }
       
@@ -130,5 +126,3 @@ const vitePluginFileRouterVue = async() => {
         }
     }
 }
-
-export default vitePluginFileRouterVue;
